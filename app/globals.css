@@ -1,0 +1,577 @@
+/* Remove the Google Fonts import at the top of the file */
+/* @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"); */
+
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card-bg: rgba(30, 41, 59, 0.8);
+  --card-border: rgba(100, 116, 139, 0.2);
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --secondary: #f472b6;
+  --accent: #8b5cf6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --muted: #64748b;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.defi-app {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.background-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header Styles */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-header h1 {
+  font-family: var(--font-poppins), sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.5rem;
+}
+
+/* Wallet Selector Styles */
+.wallet-selector {
+  position: relative;
+}
+
+.wallet-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  color: var(--foreground);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.wallet-button:hover {
+  border-color: var(--primary);
+}
+
+.wallet-icon {
+  color: var(--primary);
+}
+
+.wallet-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  width: 200px;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.wallet-option {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wallet-option:hover {
+  background-color: rgba(100, 116, 139, 0.2);
+}
+
+.wallet-option.selected {
+  background-color: rgba(56, 189, 248, 0.1);
+  color: var(--primary);
+}
+
+/* Balance Card Styles */
+.balance-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.account-address {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.address-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+
+.address-value {
+  font-family: "Inter", monospace;
+  font-size: 0.875rem;
+  background: rgba(15, 23, 42, 0.3);
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-all;
+}
+
+.balances-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.balance-item {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.balance-item:hover {
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.balance-icon {
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.balance-label {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.balance-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.eth-symbol {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.receiver-balance {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.receiver-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.receiver-icon {
+  color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.receiver-address {
+  font-family: "Inter", monospace;
+  font-size: 0.875rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.receiver-balance-value {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* Action Cards Styles */
+.action-cards-container {
+  margin-bottom: 2rem;
+}
+
+.action-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.action-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.action-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.card-icon {
+  color: var(--primary);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-description {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.card-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  background: rgba(15, 23, 42, 0.3);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease;
+}
+
+.card-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.input-with-button {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.card-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.card-button:hover {
+  opacity: 0.9;
+}
+
+/* Transaction History Styles */
+.transaction-history {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+  border-radius: 1rem;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.history-icon {
+  color: var(--primary);
+}
+
+.history-content {
+  overflow: hidden;
+}
+
+.no-transactions {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.transactions-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.transaction-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0.5rem;
+  background: rgba(15, 23, 42, 0.3);
+}
+
+.transaction-item.deposit {
+  border-left: 3px solid var(--success);
+}
+
+.transaction-item.borrow {
+  border-left: 3px solid var(--warning);
+}
+
+.transaction-item.repay {
+  border-left: 3px solid var(--primary);
+}
+
+.transaction-item.send {
+  border-left: 3px solid var(--accent);
+}
+
+.tx-type {
+  font-weight: 600;
+  min-width: 70px;
+}
+
+.tx-amount {
+  font-weight: 500;
+}
+
+.tx-hash {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.tx-hash code {
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.tx-time {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Transaction Popup Styles */
+.transaction-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.transaction-popup {
+  position: relative;
+  background: rgba(30, 41, 59, 0.95);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.popup-status-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.transaction-popup.pending .popup-status-icon {
+  color: var(--warning);
+}
+
+.transaction-popup.success .popup-status-icon {
+  color: var(--success);
+}
+
+.transaction-popup.error .popup-status-icon {
+  color: var(--error);
+}
+
+.popup-content {
+  text-align: center;
+  width: 100%;
+}
+
+.popup-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.popup-details {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 0.5rem;
+}
+
+.popup-type {
+  font-weight: 600;
+}
+
+.popup-amount {
+  font-weight: 500;
+}
+
+.popup-message {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.popup-close:hover {
+  color: var(--foreground);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wallet-selector {
+    width: 100%;
+  }
+
+  .wallet-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .wallet-dropdown {
+    width: 100%;
+  }
+
+  .balances-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-item {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .tx-hash,
+  .tx-time {
+    grid-column: span 1;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(56, 189, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
