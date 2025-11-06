@@ -305,11 +305,33 @@ describe("Lending Contract", function () {
       expect(userDeposit).to.equal(sendAmount);
     });
 
+    it("Should reject zero value via receive function", async function () {
+      await expect(
+        addr1.sendTransaction({
+          to: await lending.getAddress(),
+          value: 0,
+        })
+      ).to.be.revertedWith("Deposit amount must be greater than 0");
+    });
+
     it("Should prevent reentrancy attacks", async function () {
       // This test would require a malicious contract
       // For now, we verify the modifier exists and basic functionality works
       await lending.connect(addr1).deposit({ value: ethers.parseEther("10") });
       await expect(lending.connect(addr1).borrow(ethers.parseEther("5"))).to.not.be.reverted;
+    });
+
+    it("Should use CEI pattern - state changes before transfers", async function () {
+      // Verify borrow and withdraw work correctly with new CEI pattern
+      await lending.connect(addr1).deposit({ value: ethers.parseEther("100") });
+      await lending.connect(addr1).borrow(ethers.parseEther("40"));
+
+      const loan = await lending.loans(addr1.address);
+      expect(loan).to.equal(ethers.parseEther("40"));
+
+      await lending.connect(addr1).withdraw(ethers.parseEther("20"));
+      const deposit = await lending.deposits(addr1.address);
+      expect(deposit).to.equal(ethers.parseEther("80"));
     });
   });
 });

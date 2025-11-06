@@ -164,10 +164,12 @@ export default function DeFiLendingApp() {
       setAccruedInterest(web3.utils.fromWei(interest, "ether"))
 
       // Health factor is returned as percentage * 100, so divide by 100 to get the actual value
-      const hfValue = Number(hf)
-      if (hfValue === Number.MAX_VALUE || hfValue > 1000000) {
+      // Check for max uint256 (infinite health factor when no loan)
+      const maxUint256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+      if (hf.toString() === maxUint256 || Number(hf) === Infinity || Number(hf) > 1e20) {
         setHealthFactor("∞")
       } else {
+        const hfValue = Number(hf)
         setHealthFactor((hfValue / 100).toFixed(2))
       }
 

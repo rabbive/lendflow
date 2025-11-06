@@ -66,17 +66,24 @@ contract Lending {
 
     function borrow(uint256 amount) public nonReentrant {
         accrueInterest(msg.sender);
+
+        // CHECKS
         require(amount > 0, "Borrow amount must be greater than 0");
         require(deposits[msg.sender] > 0, "No deposits found");
+        require(address(this).balance >= amount, "Insufficient contract balance");
 
         // Check collateral against current loan balance (including accrued interest)
         uint256 currentLoan = loans[msg.sender];
         uint256 newLoanTotal = currentLoan + amount;
         require(deposits[msg.sender] >= newLoanTotal * 2, "Insufficient collateral (need 200%)");
-        require(address(this).balance >= amount, "Insufficient contract balance");
 
+        // EFFECTS
         loans[msg.sender] = newLoanTotal;
-        payable(msg.sender).transfer(amount);
+
+        // INTERACTIONS
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
+
         emit Borrow(msg.sender, amount);
     }
 
@@ -92,8 +99,11 @@ contract Lending {
 
     function withdraw(uint256 amount) public nonReentrant {
         accrueInterest(msg.sender);
+
+        // CHECKS
         require(amount > 0, "Withdraw amount must be greater than 0");
-        require(deposits[msg.sender] > 0, "No deposits found");
+        require(deposits[msg.sender] >= amount, "Insufficient deposit balance");
+        require(address(this).balance >= amount, "Insufficient contract balance");
 
         // Calculate available collateral (excess beyond loan requirements)
         uint256 requiredCollateral = loans[msg.sender] * 2;
@@ -102,15 +112,21 @@ contract Lending {
             : 0;
 
         require(availableCollateral >= amount, "Insufficient available collateral");
-        require(address(this).balance >= amount, "Insufficient contract balance");
 
+        // EFFECTS
         deposits[msg.sender] -= amount;
-        payable(msg.sender).transfer(amount);
+
+        // INTERACTIONS
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
+
         emit Withdraw(msg.sender, amount);
     }
 
     function getAvailableCollateral(address user) public view returns (uint256) {
-        uint256 requiredCollateral = loans[user] * 2;
+        // Use current loan balance including accrued interest for accurate calculation
+        uint256 currentLoan = getCurrentLoanBalance(user);
+        uint256 requiredCollateral = currentLoan * 2;
         return deposits[user] > requiredCollateral
             ? deposits[user] - requiredCollateral
             : 0;
@@ -147,7 +163,9 @@ contract Lending {
         return address(this).balance;
     }
 
-    receive() external payable {
-        deposit();
+    receive() external payable nonReentrant {
+        require(msg.value > 0, "Deposit amount must be greater than 0");
+        deposits[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
     }
 }
