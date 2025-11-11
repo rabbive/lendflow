@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { ArrowDownCircle, CreditCard, RefreshCw, Send } from "lucide-react"
+import { ArrowDownCircle, ArrowUpCircle, CreditCard, RefreshCw, Send } from "lucide-react"
 
 interface ActionCardProps {
   title: string
@@ -35,6 +35,8 @@ export function ActionCard({
     switch (iconName) {
       case "arrow-down-circle":
         return <ArrowDownCircle className="card-icon" />
+      case "arrow-up-circle":
+        return <ArrowUpCircle className="card-icon" />
       case "credit-card":
         return <CreditCard className="card-icon" />
       case "refresh-cw":

@@ -104,14 +104,18 @@ export default function DeFiLendingApp() {
   const [depositBalance, setDepositBalance] = useState("0")
   const [loanBalance, setLoanBalance] = useState("0")
   const [ethBalance, setEthBalance] = useState("0")
+  const [accruedInterest, setAccruedInterest] = useState("0")
+  const [healthFactor, setHealthFactor] = useState("0")
 
   const [depositAmount, setDepositAmount] = useState("")
   const [borrowAmount, setBorrowAmount] = useState("")
   const [repayAmount, setRepayAmount] = useState("")
+  const [withdrawAmount, setWithdrawAmount] = useState("")
 
   const [receiver, setReceiver] = useState("")
   const [sendAmount, setSendAmount] = useState("")
   const [receiverBalance, setReceiverBalance] = useState("0")
+  const [availableCollateral, setAvailableCollateral] = useState("0")
 
   const [selectedKey, setSelectedKey] = useState(PRIVATE_KEYS[0].key)
   const [txHistory, setTxHistory] = useState([])
@@ -149,10 +153,23 @@ export default function DeFiLendingApp() {
       const d = await contract.methods.deposits(account).call()
       const l = await contract.methods.loans(account).call()
       const eth = await web3.eth.getBalance(account)
+      const available = await contract.methods.getAvailableCollateral(account).call()
+      const interest = await contract.methods.getAccruedInterest(account).call()
+      const hf = await contract.methods.getHealthFactor(account).call()
 
       setDepositBalance(web3.utils.fromWei(d, "ether"))
       setLoanBalance(web3.utils.fromWei(l, "ether"))
       setEthBalance(web3.utils.fromWei(eth, "ether"))
+      setAvailableCollateral(web3.utils.fromWei(available, "ether"))
+      setAccruedInterest(web3.utils.fromWei(interest, "ether"))
+
+      // Health factor is returned as percentage * 100, so divide by 100 to get the actual value
+      const hfValue = Number(hf)
+      if (hfValue === Number.MAX_VALUE || hfValue > 1000000) {
+        setHealthFactor("∞")
+      } else {
+        setHealthFactor((hfValue / 100).toFixed(2))
+      }
 
       if (receiver) {
         const rBal = await web3.eth.getBalance(receiver)
@@ -239,6 +256,22 @@ export default function DeFiLendingApp() {
     }
   }
 
+  const withdraw = async () => {
+    if (!withdrawAmount) return alert("Enter withdraw amount")
+    try {
+      showTransactionPopup("Withdraw", withdrawAmount)
+
+      const tx = await contract.methods.withdraw(web3.utils.toWei(withdrawAmount, "ether")).send({ from: account })
+
+      updateBalances()
+      addTxLog("Withdraw", withdrawAmount, tx.transactionHash)
+      setWithdrawAmount("")
+    } catch (err) {
+      console.error("Withdraw error:", err)
+      setPopupData((prev) => ({ ...prev, status: "error" }))
+    }
+  }
+
   const sendETH = async () => {
     if (!receiver || !sendAmount) return alert("Enter receiver and amount")
     try {
@@ -300,6 +333,8 @@ export default function DeFiLendingApp() {
           ethBalance={ethBalance}
           depositBalance={depositBalance}
           loanBalance={loanBalance}
+          accruedInterest={accruedInterest}
+          healthFactor={healthFactor}
           receiverAddress={receiver}
           receiverBalance={receiverBalance}
         />
@@ -319,6 +354,17 @@ export default function DeFiLendingApp() {
               onInputChange={setDepositAmount}
               buttonText="Deposit"
               onButtonClick={deposit}
+              inputPlaceholder="Amount in ETH"
+            />
+
+            <ActionCard
+              title="Withdraw Collateral"
+              description={`Available: ${availableCollateral} ETH`}
+              icon="arrow-up-circle"
+              inputValue={withdrawAmount}
+              onInputChange={setWithdrawAmount}
+              buttonText="Withdraw"
+              onButtonClick={withdraw}
               inputPlaceholder="Amount in ETH"
             />
 
